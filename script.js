@@ -24,7 +24,7 @@ function handleSearch() {
 }
 
 /**
- * Makes the HTTP GET request to the Unsplash API.
+ * Makes the HTTP GET request to the Pixabay API.
  * @param {string} query - The image keyword to search for.
  */
 async function fetchImages(query) {
@@ -96,3 +96,4 @@ function displayMessage(message, type) {
 
 
 displayMessage('Enter a search term above to find beautiful photos! 📸', 'info');
+
