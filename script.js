@@ -1,5 +1,5 @@
 const CLIENT_ID = '52408913-2f3071833a6b6dd73a3aca7fb';
-const BASE_URL = 'https://api.unsplash.com/search/photos';
+const BASE_URL = 'https://pixabay.com/api/';
 
 const searchButton = document.getElementById('search-button');
 const imageQueryInput = document.getElementById('image-query');
@@ -93,5 +93,6 @@ function displayMessage(message, type) {
     
     resultsContainer.appendChild(msgElement);
 }
+
 
 displayMessage('Enter a search term above to find beautiful photos! 📸', 'info');
