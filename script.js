@@ -1,4 +1,4 @@
-const CLIENT_ID = '52408913-2f3071833a6b6dd73a3aca7fb';
+const API_KEY = '52408913-2f3071833a6b6dd73a3aca7fb';
 const BASE_URL = 'https://pixabay.com/api/';
 
 const searchButton = document.getElementById('search-button');
@@ -16,10 +16,9 @@ function handleSearch() {
     const query = imageQueryInput.value.trim();
 
     if (!query) {
-        displayMessage('Please enter a keyword to search for images. 💡', 'error');
-        return;
+        displayMessage('Please enter a keyword to search for images. 🛑', 'error');
+        return; 
     }
-
     fetchImages(query);
 }
 
@@ -28,49 +27,66 @@ function handleSearch() {
  * @param {string} query - The image keyword to search for.
  */
 async function fetchImages(query) {
-    const endpoint = `${BASE_URL}?query=${encodeURIComponent(query)}&client_id=${CLIENT_ID}&per_page=12`;
+    const endpoint = `${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=12`;
 
     displayMessage('Searching...', 'loading');
 
     try {
+
         const response = await fetch(endpoint);
+
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}. Check if your Client ID is valid.`);
+     
+            throw new Error(`HTTP error! Status: ${response.status}. Check network connection.`);
         }
+
         const data = await response.json();
-        if (data.results && data.results.length > 0) {
-            displayResults(data.results);
+
+        if (data.hits && data.hits.length > 0) {
+            displayResults(data.hits);
         } else {
-            displayMessage(`No images found for "${query}". Try a different keyword. 🤷‍♀️`, 'error');
+            displayMessage(`No images found for "${query}". Try a different search term. 🤔`, 'error');
         }
 
     } catch (error) {
         console.error("Fetch error:", error);
-        displayMessage('Failed to fetch image data. Check your network or API Client ID. ❌', 'error');
+        displayMessage('Failed to fetch image data. Ensure your API Key is correct and try again. ❌', 'error');
     }
 }
 
 /**
  * Clears the container and displays the image cards.
- * @param {Array<Object>} images - Array of image objects from the API.
+ * @param {Array<Object>} images - Array of image objects from the API (the 'hits' array).
  */
 function displayResults(images) {
     resultsContainer.innerHTML = '';
     images.forEach(image => {
-        const imageUrl = image.urls.small;
-        const altDescription = image.alt_description || 'Untitled Photo';
-        const photographerName = image.user.name || 'Unknown Photographer';
-        const photographerLink = image.user.links.html;
+        const imageSource = image.webformatURL;   // webformatURL -> Image Source
+        const tags = image.tags;                   // tags -> Image Tags
+        const photographerName = image.user;       // user -> Photographer Name
+        const likes = image.likes;                 // likes -> Number of Likes
+        const downloads = image.downloads;         // downloads -> Number of Downloads
+       
+        const tagList = tags.split(',').map(tag => tag.trim()).join(', ');
+
         const imageCard = document.createElement('div');
         imageCard.classList.add('image-card');
-        
         imageCard.innerHTML = `
-            <img src="${imageUrl}" alt="${altDescription}">
+            <img src="${imageSource}" alt="${tagList}">
             <div class="image-info">
-                <p>Description: <strong>${altDescription}</strong></p>
-                <p>Photographer: <a href="${photographerLink}" target="_blank" class="photographer">${photographerName}</a></p>
+                <div class="data-field">
+                    <span>Photographer:</span> <strong>${photographerName}</strong>
+                </div>
+                <div class="data-field">
+                    <span><i class="fas fa-thumbs-up"></i> Likes:</span> <strong>${likes}</strong>
+                </div>
+                <div class="data-field">
+                    <span><i class="fas fa-download"></i> Downloads:</span> <strong>${downloads}</strong>
+                </div>
+                <p class="tags">Tags: ${tagList}</p>
             </div>
         `;
+        
         resultsContainer.appendChild(imageCard);
     });
 }
@@ -81,10 +97,10 @@ function displayResults(images) {
  * @param {string} type - The type of message ('loading', 'error', 'info').
  */
 function displayMessage(message, type) {
-    resultsContainer.innerHTML = '';
+    resultsContainer.innerHTML = ''; // Clear previous content
     const msgElement = document.createElement('p');
     msgElement.textContent = message;
-    
+
     if (type === 'error') {
         msgElement.classList.add('error-message');
     } else {
@@ -94,6 +110,4 @@ function displayMessage(message, type) {
     resultsContainer.appendChild(msgElement);
 }
 
-
-displayMessage('Enter a search term above to find beautiful photos! 📸', 'info');
-
+displayMessage('Enter a search keyword above to fetch images!', 'info');
